@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Random Story Builder | Grade XI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">✦ NARRATIVE TEXT PROJECT · GRADE XI ✦</div>
+  <h1>RANDOM STORY<br><span>BUILDER</span></h1>
+  <p class="tagline">Pick it. Connect it. Write it.</p>
+  <p class="intro">Seven random cards. Endless possibilities. One unforgettable story.</p>
+  <div class="stats"><span>♡ 7 Categories</span><span>✦ 105 Cards</span><span>✎ 400–600 Words</span></div>
+</header>
+<main class="container">
+  <section class="control panel">
+    <div class="progress-heading"><b>YOUR STORY PROGRESS</b><span id="progressLabel">0/7 Cards Drawn</span></div>
+    <div class="progress-track"><div id="progressFill"></div></div>
+    <div class="actions"><button id="drawAll" class="btn primary">✦ Draw All Cards</button><button id="copyCards" class="btn secondary" disabled>▣ Copy Story Cards</button><button id="reset" class="btn ghost">↻ Reset</button></div>
+  </section>
+  <section>
+    <div class="section-title"><div><h2>Pull Your Story Cards</h2><p>Draw a card from each category. Let the plot surprise you!</p></div><span class="section-number">01 / THE GACHA</span></div>
+    <div id="cardGrid" class="card-grid"></div>
+  </section>
+  <section>
+    <div class="section-title"><div><h2>Your Story Pack ✧</h2><p>Your seven story ingredients, all in one place.</p></div><span class="section-number">02 / YOUR DRAW</span></div>
+    <div class="story-layout">
+      <div class="panel">
+        <div id="packEmpty" class="empty-state"><div class="empty-icon">✧</div><h3>Your story awaits!</h3><p>Draw your first card to begin your adventure.</p></div>
+        <div id="storyPack" class="story-pack"></div><p id="copyFeedback" class="feedback"></p>
+      </div>
+      <aside class="panel checklist"><h3>Story Structure</h3><p>Check your progress as a team.</p>
+        <label><input type="checkbox"><span><b>Orientation</b><small>Introduce characters, place, and time.</small></span></label>
+        <label><input type="checkbox"><span><b>Complication</b><small>Develop the main problem.</small></span></label>
+        <label><input type="checkbox"><span><b>Climax</b><small>Build to the turning point.</small></span></label>
+        <label><input type="checkbox"><span><b>Resolution</b><small>Resolve the conflict.</small></span></label>
+        <p id="checkProgress">0/4 checks complete</p><button id="startWriting" class="btn primary full" disabled>Start Writing ↗</button>
+      </aside>
+    </div>
+  </section>
+  <section id="writingArea" class="panel writing-area" hidden>
+    <h2>Build Your Narrative ✍️</h2><p id="writingPrompt"></p>
+    <textarea id="storyDraft" placeholder="Once upon a time..."></textarea>
+    <div class="writing-footer"><span id="wordCount">0 words</span><button id="copyDraft" class="btn primary">Copy Draft</button></div><p id="draftFeedback" class="feedback"></p>
+  </section>
+</main>
+<footer>Made for curious minds & unexpected plot twists ✦</footer>
+<div id="gachaOverlay" class="gacha-overlay" hidden>
+  <div class="gacha-backdrop"></div><div class="gacha-stage">
+    <p class="gacha-kicker">✦ YOUR FATE HAS CHOSEN ✦</p><div id="sparkleBurst" class="sparkle-burst"></div>
+    <div id="prizeCard" class="prize-card"><span class="prize-ribbon">STORY CARD UNLOCKED</span><div id="prizeIcon" class="prize-icon">✦</div><h2 id="prizeCategory"></h2><span id="prizeId" class="prize-id"></span><div id="prizeContent"></div></div>
+    <p class="gacha-congrats">A new piece of your story!</p><button id="gachaContinue" class="btn primary">Add to Story Pack ✨</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>
