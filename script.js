@@ -476,4 +476,51 @@ document.addEventListener("keydown", event => {
   }
 });
 
-renderCards();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const requiredIds = [
+    "#cardGrid",
+    "#progressLabel",
+    "#progressFill",
+    "#drawAll",
+    "#copyCards",
+    "#startWriting",
+    "#packEmpty",
+    "#storyPack",
+    "#gachaOverlay",
+    "#machineStage",
+    "#gachaMachine",
+    "#machinePrompt",
+    "#gachaOpen",
+    "#prizeCard",
+    "#prizeIcon",
+    "#prizeCategory",
+    "#prizeId",
+    "#prizeContent",
+    "#gachaCongrats",
+    "#gachaContinue",
+    "#sparkleBurst",
+    "#writingArea",
+    "#writingPrompt",
+    "#storyDraft",
+    "#wordCount",
+    "#copyDraft",
+    "#copyFeedback",
+    "#draftFeedback",
+    "#reset",
+    "#checkProgress"
+  ];
+
+  const missing = requiredIds.filter(
+    selector => !document.querySelector(selector)
+  );
+
+  if (missing.length) {
+    console.error("Missing HTML elements:", missing);
+    alert("Some HTML elements are missing. Check the browser console.");
+    return;
+  }
+
+  renderCards();
+});
+
