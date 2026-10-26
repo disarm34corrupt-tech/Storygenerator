@@ -1,3 +1,10 @@
+// Paste the deployed Google Apps Script Web App URL ending in /exec here.
+const GAS_WEB_APP_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const TEAM_SESSION_KEY = "mysteryStoryGachaTeam_v1";
+const TEAM_RESULT_KEY = "mysteryStoryGachaResult_v1";
+let teamSession = null;
+let teamAlreadyPlayed = false;
+
 
 const CARD_DATA = {
   Theme: [
@@ -174,6 +181,95 @@ const safe = text =>
     "'": "&#39;"
   })[char]);
 
+
+function jsonpRequest(params) {
+  return new Promise((resolve, reject) => {
+    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("PASTE_YOUR")) {
+      reject(new Error("The Google Apps Script URL has not been connected by the teacher yet."));
+      return;
+    }
+    const callbackName = "gachaCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => finish(new Error("Server timeout. Please try again.")), 15000);
+    function finish(error, value) {
+      clearTimeout(timeout); delete window[callbackName]; script.remove();
+      if (error) reject(error); else resolve(value);
+    }
+    window[callbackName] = data => finish(null, data);
+    script.onerror = () => finish(new Error("Could not reach Apps Script. Check its deployment URL and access settings."));
+    const query = new URLSearchParams({...params, callback: callbackName});
+    script.src = GAS_WEB_APP_URL + (GAS_WEB_APP_URL.includes("?") ? "&" : "?") + query.toString();
+    document.body.appendChild(script);
+  });
+}
+function setTeamStatus(message, type="") {
+  const el=$("#teamStatus"); if (!el) return;
+  el.textContent=message; el.className="team-status "+type;
+}
+function applyTeamLock() {
+  const form=$("#teamForm");
+  if (form) form.querySelectorAll("input,textarea,button").forEach(el => el.disabled=Boolean(teamSession));
+  if (teamSession) setTeamStatus(teamAlreadyPlayed
+    ? "This team has already used its one gacha session. The result is locked."
+    : "Team registered: "+teamSession.teamName+". Your team can open the seven-card set once.",
+    teamAlreadyPlayed ? "locked" : "success");
+  $("#drawAll").disabled=!teamSession || teamAlreadyPlayed || busy;
+  $("#drawAll").textContent=teamAlreadyPlayed ? "✓ Story Set Already Used" : "🎁 Open Story Set";
+  $("#reset").disabled=!teamSession || teamAlreadyPlayed || busy;
+  document.querySelectorAll(".draw-one").forEach(button => button.disabled=!teamSession || teamAlreadyPlayed || busy);
+}
+async function registerTeam(event) {
+  event.preventDefault(); if (teamSession) return;
+  const teamName=$("#teamName").value.trim(), leaderName=$("#leaderName").value.trim();
+  const members=$("#memberNames").value.split(/[\\n,;]+/).map(x=>x.trim()).filter(Boolean);
+  if (!teamName || !leaderName || !members.length) { setTeamStatus("Please enter the team name, leader, and all team members.","error"); return; }
+  if (!members.some(x=>x.toLowerCase()===leaderName.toLowerCase())) {
+    setTeamStatus("Please include the team leader in the team members list.","error"); return;
+  }
+  const submit=$("#registerTeam"); submit.disabled=true; submit.textContent="Registering...";
+  try {
+    const response=await jsonpRequest({action:"register",teamName,leaderName,members:members.join("\\n")});
+    if (!response || !response.ok) throw new Error(response?.message || "Registration failed.");
+    if (response.alreadyPlayed) {
+      teamAlreadyPlayed=true;
+      setTeamStatus(response.message || "This team has already played.","locked");
+      return;
+    }
+    if (!response.teamKey) throw new Error(response.message || "This team name may already be registered. Contact your teacher.");
+    teamSession={teamName,leaderName,members,teamKey:response.teamKey};
+    localStorage.setItem(TEAM_SESSION_KEY,JSON.stringify(teamSession));
+    applyTeamLock();
+  } catch(error) {
+    setTeamStatus(error.message || "Could not register. Please try again.","error");
+  } finally {
+    submit.disabled=Boolean(teamSession) || teamAlreadyPlayed;
+    submit.textContent=teamSession ? "Team Registered ✓" : "Register Team & Continue ✨";
+  }
+}
+async function restoreTeamSession() {
+  try {
+    const stored=JSON.parse(localStorage.getItem(TEAM_SESSION_KEY)||"null");
+    if (!stored?.teamKey) return;
+    const response=await jsonpRequest({action:"status",teamKey:stored.teamKey});
+    if (!response?.ok || !response.registered) { localStorage.removeItem(TEAM_SESSION_KEY); return; }
+    teamSession=stored; teamAlreadyPlayed=Boolean(response.alreadyPlayed);
+    if (response.result?.cards) {
+      categories.forEach(category => { const card=response.result.cards[category]; if(card) drawn[category]=[card.id,card.content]; });
+      renderCards(); renderPack();
+    }
+    applyTeamLock();
+  } catch(error) {
+    setTeamStatus("Could not verify this team's status with the server. Please refresh or contact your teacher.","error");
+  }
+}
+async function saveCompletedStorySet() {
+  const cards={};
+  categories.forEach(category=>{if(drawn[category]) cards[category]={id:drawn[category][0],content:drawn[category][1]};});
+  const response=await jsonpRequest({action:"save",teamKey:teamSession.teamKey,cards:JSON.stringify(cards)});
+  if(!response?.ok) throw new Error(response?.message || "The story set could not be saved.");
+  teamAlreadyPlayed=true; localStorage.setItem(TEAM_RESULT_KEY,JSON.stringify(cards)); applyTeamLock();
+}
+
 function contentHTML(category, content) {
   if (Array.isArray(content)) {
     return `<ul>${content.map(item => `<li>${safe(item)}</li>`).join("")}</ul>`;
@@ -331,7 +427,9 @@ function sleep(milliseconds) {
 }
 
 async function drawOne(category) {
-  if (busy) return;
+  if (busy || !teamSession || teamAlreadyPlayed) return;
+  setTeamStatus('Use “Open Story Set” to draw all seven cards in one session.', 'notice');
+  return;
 
   busy = true;
   renderCards();
@@ -349,7 +447,7 @@ async function drawOne(category) {
 }
 
 async function drawAll() {
-  if (busy) return;
+  if (busy || !teamSession || teamAlreadyPlayed) return;
 
   busy = true;
 
@@ -371,6 +469,13 @@ async function drawAll() {
 
   busy = false;
   renderCards();
+  try {
+    await saveCompletedStorySet();
+    setTeamStatus("All seven cards have been saved. This team cannot spin again.", "success");
+  } catch (error) {
+    setTeamStatus("The cards were drawn, but saving failed: " + error.message + " Please contact your teacher before leaving this page.", "error");
+    $("#drawAll").disabled = true;
+  }
 
   $("#storyPack").scrollIntoView({
     behavior: "smooth",
@@ -379,7 +484,7 @@ async function drawAll() {
 }
 
 function resetAll() {
-  if (busy) return;
+  if (busy || !teamSession || teamAlreadyPlayed) return;
 
   categories.forEach(category => delete drawn[category]);
 
@@ -522,5 +627,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderCards();
+  const teamForm = $("#teamForm");
+  if (teamForm) teamForm.addEventListener("submit", registerTeam);
+  $("#drawAll").disabled = true;
+  $("#reset").disabled = true;
+  restoreTeamSession();
 });
 
