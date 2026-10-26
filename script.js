@@ -1,5 +1,5 @@
 // Paste the deployed Google Apps Script Web App URL ending in /exec here.
-const GAS_WEB_APP_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwNVNfSd8MrvU2Z1gZVHLy2f5BQ9vcKZi56eAbKulh5hkc97r8iJ3ZVo85o_bwAlZw9/exec";
 const TEAM_SESSION_KEY = "mysteryStoryGachaTeam_v1";
 const TEAM_RESULT_KEY = "mysteryStoryGachaResult_v1";
 let teamSession = null;
