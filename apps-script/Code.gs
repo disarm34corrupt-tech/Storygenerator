@@ -51,7 +51,7 @@ function getSheet_() {
   }
   return sheet;
 }
-function norm_(v) { return String(v || "").trim().toLowerCase().replace(/\\s+/g, " "); }
+function norm_(v) { return String(v || "").trim().toLowerCase().replace(/\s+/g, " "); }
 
 function registerTeam_(p) {
   const teamName = String(p.teamName || "").trim();
