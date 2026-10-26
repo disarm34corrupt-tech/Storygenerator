@@ -36,3 +36,29 @@ h1{font:700 clamp(42px,7vw,76px)/.98 'Space Grotesk',sans-serif;letter-spacing:-
 .team-status.locked{padding:10px 12px;border-radius:9px;background:#fff0ef;color:#a33d38;font-weight:700}
 .team-status.notice{padding:10px 12px;border-radius:9px;background:#f2edff;color:#64558f}
 @media(max-width:600px){.team-form{grid-template-columns:1fr}.team-form label:nth-child(3){grid-column:auto}.team-form button{width:100%}}
+
+
+/* Story Lab visual refresh */
+:root{--ink:#f4efff;--muted:#b5aacd;--line:#42365e;--paper:#100d1d;--violet:#b69aff}
+body{color:var(--ink);background:radial-gradient(ellipse at 10% 0%,#3b2868 0,transparent 38%),radial-gradient(ellipse at 95% 12%,#64294f 0,transparent 31%),#100d1d}
+.hero{position:relative;padding:64px 20px 42px;background:linear-gradient(180deg,#171127b5,transparent)}
+.eyebrow{background:#211a35;border-color:#625087;color:#e4d4ff}
+h1{color:#fff8ff;text-shadow:0 5px 35px #b18aff30}h1 span{background:linear-gradient(100deg,#c3a4ff,#ffb6d5,#ffe29b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{color:#f0dfff;font-weight:600}.intro{color:#c0b4d6}
+.stats span{background:#211a31;border-color:#4a3b66;color:#e4d8f7}
+.container{width:min(1160px,92%)}.panel{background:linear-gradient(145deg,#211a32f5,#191427f5);border-color:#493b61;box-shadow:0 16px 50px #05030b55}
+.team-registration{background:linear-gradient(135deg,#29203f,#1b162b);border-color:#6b5590}
+.section-title h2,.writing-area h2{color:#fff5ff}.section-title p,.checklist>p{color:#b5aacd}.section-number{color:#c1a9ee}
+.progress-heading{color:#eee4ff}#progressLabel{color:#e3c7ff}.progress-track{background:#352947}#progressFill{background:linear-gradient(90deg,#a68aff,#ff9fce,#ffdc8c)}
+.btn{border-radius:13px;padding:13px 17px;font-size:12px;letter-spacing:.01em}.primary{background:linear-gradient(110deg,#8f69ed,#d47ab8);box-shadow:0 7px 20px #9e6fe52b}.secondary{background:#33264c;color:#eadbff;border:1px solid #625080}.ghost{background:#292236;color:#c9bddc;border:1px solid #403650}
+.draw-card{background:linear-gradient(150deg,#211a31,var(--tint));border-color:color-mix(in srgb,var(--accent) 50%,#30243e);box-shadow:0 14px 32px #05030b42}
+.card-count{color:#e5d7ff}.card-hint{color:#b8accb}.card-reveal{background:#171222d9;border-color:color-mix(in srgb,var(--accent) 65%,#211a31)}.card-reveal p,.card-reveal ul{color:#f4edff}.card-back{color:#c0b1d7}.question-mark{background:#21182f;border-color:var(--accent)}
+.pack-item{background:linear-gradient(100deg,color-mix(in srgb,var(--tint) 20%,#1d172b),#211a30);border-left-color:var(--accent)}.pack-item p,.pack-item ul{color:#f0e9ff}.pack-item-head{color:#e7d4ff}.checklist h3{color:#fff}.checklist label{color:#f1eaff}.checklist small{color:#b7aacb}#checkProgress{color:#d4b8ff}
+#storyDraft,.team-form input,.team-form textarea{background:#151121;border-color:#4d3e66;color:#fff4ff}#storyDraft::placeholder,.team-form input::placeholder,.team-form textarea::placeholder{color:#827695}.team-form label{color:#e8ddfa}.team-form small{color:#b5aacd}
+.team-status.success{background:#16392f;color:#a8f4ce}.team-status.error,.team-status.locked{background:#47222d;color:#ffc1ca}.team-status.notice{background:#302346;color:#e5d1ff}
+.empty-state{color:#b5aacd}.empty-state h3{color:#fff}.empty-icon{color:#d5b5ff}
+footer{color:#a89abf}
+.result-actions{margin-top:18px;padding:18px;border:1px solid #665080;border-radius:17px;background:linear-gradient(135deg,#2a2140,#20172f)}.result-actions h3{margin:0 0 6px;font:700 17px 'Space Grotesk',sans-serif;color:#fff}.result-actions p{margin:0;color:#c3b5d9;font-size:12px;line-height:1.6}.result-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.result-actions[hidden]{display:none}.result-actions .feedback{margin-top:10px}
+.gacha-backdrop{background:radial-gradient(circle,#7651a7a3,#080611f2 74%)}.machine-stage{background:linear-gradient(150deg,#2c2142f5,#1b152bfa);border-color:#6c588e;color:#f9efff}.machine-title{color:#ddc2ff}.machine-prompt{color:#d4c3e9}.prize-card{color:#302941}
+@media(max-width:550px){.hero{padding-top:42px}.result-buttons{display:grid;grid-template-columns:1fr}.result-buttons .btn{width:100%}.team-registration .section-title{gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
