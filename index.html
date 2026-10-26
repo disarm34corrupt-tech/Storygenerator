@@ -15,6 +15,21 @@
   <div class="stats"><span>♡ 7 Categories</span><span>✦ 105 Cards</span><span>✎ 400–600 Words</span></div>
 </header>
 <main class="container">
+
+  <section id="teamRegistration" class="panel team-registration">
+    <div class="section-title registration-heading">
+      <div><h2>Register Your Team ✦</h2><p>Register once before opening your story set. One team gets one gacha session.</p></div>
+      <span class="section-number">START HERE</span>
+    </div>
+    <form id="teamForm" class="team-form">
+      <label>Team name <input id="teamName" maxlength="80" required placeholder="e.g. The Plot Detectives"></label>
+      <label>Team leader <input id="leaderName" maxlength="100" required placeholder="Full name of team leader"></label>
+      <label>Team members <textarea id="memberNames" maxlength="800" required rows="3" placeholder="Enter all team members' names, separated by commas"></textarea><small>Include the leader in the member list. Separate names with commas or new lines.</small></label>
+      <button id="registerTeam" class="btn primary" type="submit">Register Team & Continue ✨</button>
+    </form>
+    <div id="teamStatus" class="team-status" role="status" aria-live="polite"></div>
+  </section>
+
   <section class="control panel">
     <div class="progress-heading"><b>YOUR STORY PROGRESS</b><span id="progressLabel">0/7 Cards Drawn</span></div>
     <div class="progress-track"><div id="progressFill"></div></div>
