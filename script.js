@@ -221,14 +221,14 @@ function applyTeamLock() {
 async function registerTeam(event) {
   event.preventDefault(); if (teamSession) return;
   const teamName=$("#teamName").value.trim(), leaderName=$("#leaderName").value.trim();
-  const members=$("#memberNames").value.split(/[\\n,;]+/).map(x=>x.trim()).filter(Boolean);
+  const members=$("#memberNames").value.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
   if (!teamName || !leaderName || !members.length) { setTeamStatus("Please enter the team name, leader, and all team members.","error"); return; }
   if (!members.some(x=>x.toLowerCase()===leaderName.toLowerCase())) {
     setTeamStatus("Please include the team leader in the team members list.","error"); return;
   }
   const submit=$("#registerTeam"); submit.disabled=true; submit.textContent="Registering...";
   try {
-    const response=await jsonpRequest({action:"register",teamName,leaderName,members:members.join("\\n")});
+    const response=await jsonpRequest({action:"register",teamName,leaderName,members:members.join("\n")});
     if (response?.alreadyPlayed) {
       teamAlreadyPlayed=true;
       setTeamStatus(response.message || "This team has already played.","locked");
