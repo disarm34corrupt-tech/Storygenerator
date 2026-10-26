@@ -296,8 +296,8 @@ function renderCards() {
             : `<div class="card-back"><span class="question-mark">?</span>YOUR STORY AWAITS</div>`
           }
         </div>
-        <button class="draw-one" data-draw="${category}" ${busy ? "disabled" : ""}>
-          ${card ? "Draw Again ↻" : `Draw ${category} →`}
+        <button class="draw-one" data-draw="${category}" ${busy || Boolean(card) || !teamSession || teamAlreadyPlayed ? "disabled" : ""}>
+          ${card ? "Card Drawn ✓" : `Draw ${category} →`}
         </button>
       </article>
     `;
@@ -427,9 +427,7 @@ function sleep(milliseconds) {
 }
 
 async function drawOne(category) {
-  if (busy || !teamSession || teamAlreadyPlayed) return;
-  setTeamStatus('Use “Open Story Set” to draw all seven cards in one session.', 'notice');
-  return;
+  if (busy || !teamSession || teamAlreadyPlayed || drawn[category]) return;
 
   busy = true;
   renderCards();
@@ -437,13 +435,25 @@ async function drawOne(category) {
   document.querySelector(`[data-category="${category}"]`)
     ?.classList.add("is-spinning");
 
-  await sleep(250);
+  await sleep(500);
 
   drawn[category] = randomCard(category);
-  busy = false;
-
   renderCards();
   revealGacha(category, drawn[category]);
+
+  await waitForContinue();
+
+  busy = false;
+  renderCards();
+
+  if (categories.every(item => drawn[item])) {
+    try {
+      await saveCompletedStorySet();
+      setTeamStatus("All seven cards have been saved. This team cannot draw again.", "success");
+    } catch (error) {
+      setTeamStatus("All cards were drawn, but saving failed: " + error.message + " Please contact your teacher before leaving this page.", "error");
+    }
+  }
 }
 
 async function drawAll() {
