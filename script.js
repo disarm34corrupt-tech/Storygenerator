@@ -267,7 +267,7 @@ async function saveCompletedStorySet() {
   categories.forEach(category=>{if(drawn[category]) cards[category]={id:drawn[category][0],content:drawn[category][1]};});
   const response=await jsonpRequest({action:"save",teamKey:teamSession.teamKey,cards:JSON.stringify(cards)});
   if(!response?.ok) throw new Error(response?.message || "The story set could not be saved.");
-  teamAlreadyPlayed=true; localStorage.setItem(TEAM_RESULT_KEY,JSON.stringify(cards)); applyTeamLock();
+  teamAlreadyPlayed=true; localStorage.setItem(TEAM_RESULT_KEY,JSON.stringify(cards)); $("#resultActions").hidden=false; applyTeamLock();
 }
 
 function contentHTML(category, content) {
@@ -502,6 +502,50 @@ function resetAll() {
   renderCards();
 }
 
+function resultText() {
+  const team = teamSession || {};
+  return [
+    "MYSTERY STORY GACHA — STORY SET",
+    "Team: " + (team.teamName || "Unknown team"),
+    "Leader: " + (team.leaderName || "—"),
+    "Members: " + ((team.members || []).join(", ") || "—"),
+    "Date: " + new Date().toLocaleDateString(),
+    "",
+    packText(),
+    "",
+    "Use these seven story ingredients to write your narrative text in Google Docs."
+  ].join("\n");
+}
+function downloadStoryCards() {
+  const blob = new Blob([resultText()], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = (teamSession?.teamName || "mystery-story").replace(/[^a-z0-9-_]+/gi,"-") + "-story-set.txt";
+  document.body.appendChild(link); link.click(); link.remove();
+  URL.revokeObjectURL(url);
+  $("#sendFeedback").textContent = "Your story set has been downloaded. Keep it for your Google Docs writing task.";
+}
+async function sendStoryCards() {
+  const payload = {title:"Mystery Story Gacha — " + (teamSession?.teamName || "Story Set"), text:resultText()};
+  try {
+    if (navigator.share && (!navigator.canShare || navigator.canShare({title:payload.title,text:payload.text}))) {
+      await navigator.share(payload);
+      $("#sendFeedback").textContent = "Share menu opened. Choose where to send your story set.";
+    } else {
+      await navigator.clipboard.writeText(payload.title + "\n\n" + payload.text);
+      $("#sendFeedback").textContent = "Story set copied! Paste it into your class chat or send it to your teacher.";
+    }
+  } catch(error) {
+    if (error.name !== "AbortError") {
+      try {
+        const area=document.createElement("textarea"); area.value=payload.title+"\n\n"+payload.text;
+        document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+        $("#sendFeedback").textContent = "Story set copied! Paste it into your class chat or send it to your teacher.";
+      } catch { $("#sendFeedback").textContent = "Please use Download Result, then send the file to your teacher."; }
+    }
+  }
+}
 function packText() {
   return categories
     .filter(category => drawn[category])
@@ -551,10 +595,16 @@ function updateChecklist() {
   const inputs = [...document.querySelectorAll(".checklist input")];
   const count = inputs.filter(input => input.checked).length;
 
-  $("#checkProgress").textContent = `${count}/4 checks complete`;
+  $("#checkProgress",
+    "#resultActions",
+    "#downloadCards",
+    "#sendCards",
+    "#sendFeedback").textContent = `${count}/4 checks complete`;
 }
 
 $("#drawAll").onclick = drawAll;
+$("#downloadCards").onclick = downloadStoryCards;
+$("#sendCards").onclick = sendStoryCards;
 $("#gachaOpen").onclick = openMysteryBox;
 $("#reset").onclick = resetAll;
 $("#copyCards").onclick = () =>
@@ -627,6 +677,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderCards();
+  const savedResult = localStorage.getItem(TEAM_RESULT_KEY);
+  if (savedResult) { try { if (JSON.parse(savedResult)) $("#resultActions").hidden=false; } catch {} }
   const teamForm = $("#teamForm");
   if (teamForm) teamForm.addEventListener("submit", registerTeam);
   $("#drawAll").disabled = true;
