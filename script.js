@@ -229,12 +229,12 @@ async function registerTeam(event) {
   const submit=$("#registerTeam"); submit.disabled=true; submit.textContent="Registering...";
   try {
     const response=await jsonpRequest({action:"register",teamName,leaderName,members:members.join("\\n")});
-    if (!response || !response.ok) throw new Error(response?.message || "Registration failed.");
-    if (response.alreadyPlayed) {
+    if (response?.alreadyPlayed) {
       teamAlreadyPlayed=true;
       setTeamStatus(response.message || "This team has already played.","locked");
       return;
     }
+    if (!response || !response.ok) throw new Error(response?.message || "Registration failed.");
     if (!response.teamKey) throw new Error(response.message || "This team name may already be registered. Contact your teacher.");
     teamSession={teamName,leaderName,members,teamKey:response.teamKey};
     localStorage.setItem(TEAM_SESSION_KEY,JSON.stringify(teamSession));
