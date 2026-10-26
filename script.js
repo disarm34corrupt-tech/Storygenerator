@@ -526,6 +526,120 @@ function resultText() {
     "Use these seven story ingredients to write your narrative text in Google Docs."
   ].join("\n");
 }
+function downloadStorySummaryJPG() {
+  if (!teamSession || categories.some(category => !drawn[category])) {
+    $("#sendFeedback").textContent = "Draw all seven cards before downloading the JPG summary.";
+    return;
+  }
+
+  const width = 1200;
+  const margin = 72;
+  const cardWidth = width - margin * 2;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const items = categories.map(category => {
+    const [id, content] = drawn[category];
+    const body = Array.isArray(content) ? content.map(item => "• " + item).join("\n") : String(content);
+    return {category, id, body};
+  });
+
+  const wrapText = (text, maxWidth, font) => {
+    ctx.font = font;
+    const lines = [];
+    String(text).split("\n").forEach(paragraph => {
+      const words = paragraph.split(/\s+/);
+      let line = "";
+      words.forEach(word => {
+        const candidate = line ? line + " " + word : word;
+        if (ctx.measureText(candidate).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else line = candidate;
+      });
+      lines.push(line);
+    });
+    return lines;
+  };
+
+  const prepared = items.map(item => {
+    const heading = item.category.toUpperCase() + (item.id ? "  /  " + item.id : "");
+    const bodyLines = wrapText(item.body, cardWidth - 56, "24px Arial");
+    return {heading, bodyLines, height: 82 + bodyLines.length * 34};
+  });
+  const height = 360 + prepared.reduce((sum, item) => sum + item.height + 18, 0) + 70;
+  canvas.width = width;
+  canvas.height = height;
+
+  const bg = ctx.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, "#171226");
+  bg.addColorStop(1, "#351b3a");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = "#bca0df";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(28, 28, width - 56, height - 56);
+  ctx.fillStyle = "#e9c3e5";
+  ctx.font = "bold 22px Arial";
+  ctx.fillText("CONFIDENTIAL • STORY DEVELOPMENT FILE", margin, 78);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 52px Arial";
+  ctx.fillText("MYSTERY STORY GACHA", margin, 145);
+  ctx.fillStyle = "#d9c7ec";
+  ctx.font = "28px Arial";
+  ctx.fillText("STORY SET SUMMARY", margin, 190);
+
+  ctx.fillStyle = "#241a32";
+  ctx.fillRect(margin, 220, cardWidth, 105);
+  ctx.strokeStyle = "#75588f";
+  ctx.strokeRect(margin, 220, cardWidth, 105);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 25px Arial";
+  ctx.fillText("TEAM: " + teamSession.teamName, margin + 24, 260);
+  ctx.font = "21px Arial";
+  ctx.fillStyle = "#d9c7ec";
+  ctx.fillText("LEADER: " + teamSession.leaderName, margin + 24, 295);
+  ctx.textAlign = "right";
+  ctx.fillText(new Date().toLocaleDateString(), width - margin - 24, 295);
+  ctx.textAlign = "left";
+
+  let y = 350;
+  prepared.forEach(item => {
+    ctx.fillStyle = "#241a32";
+    ctx.fillRect(margin, y, cardWidth, item.height);
+    ctx.strokeStyle = "#75588f";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(margin, y, cardWidth, item.height);
+    ctx.fillStyle = "#e9c3e5";
+    ctx.font = "bold 24px Arial";
+    ctx.fillText(item.heading, margin + 28, y + 38);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "24px Arial";
+    item.bodyLines.forEach((line, index) => ctx.fillText(line, margin + 28, y + 78 + index * 34));
+    y += item.height + 18;
+  });
+
+  ctx.fillStyle = "#d9c7ec";
+  ctx.font = "20px Arial";
+  ctx.fillText("Use these seven ingredients to write your narrative text.", margin, height - 52);
+
+  canvas.toBlob(blob => {
+    if (!blob) {
+      $("#sendFeedback").textContent = "Could not create the JPG. Please try again.";
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = (teamSession.teamName || "mystery-story").replace(/[^a-z0-9-_]+/gi, "-") + "-story-summary.jpg";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    $("#sendFeedback").textContent = "JPG summary downloaded. Submit this image to your teacher.";
+  }, "image/jpeg", 0.94);
+}
+
 function downloadStoryCards() {
   const blob = new Blob([resultText()], {type:"text/plain;charset=utf-8"});
   const url = URL.createObjectURL(blob);
@@ -614,6 +728,7 @@ function updateChecklist() {
 
 $("#drawAll").onclick = drawAll;
 $("#downloadCards").onclick = downloadStoryCards;
+$("#downloadJPG").onclick = downloadStorySummaryJPG;
 $("#sendCards").onclick = sendStoryCards;
 $("#gachaOpen").onclick = openMysteryBox;
 $("#reset").onclick = resetAll;
